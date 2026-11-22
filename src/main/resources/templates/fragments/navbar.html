@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm sticky-top py-2">
+  <style>
+    .navbar-brand-badge {
+        width: 38px;
+        height: 38px;
+        border-radius: 0.65rem;
+        background: linear-gradient(135deg, #059669, #10b981);
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        box-shadow: 0 4px 10px rgba(5, 150, 105, 0.25);
+    }
+    .nav-link-modern {
+        font-weight: 500;
+        color: #334155 !important;
+        border-radius: 0.5rem;
+        padding: 0.45rem 0.8rem !important;
+        transition: background-color 0.15s ease, color 0.15s ease;
+    }
+    .nav-link-modern:hover, .nav-link-modern:focus {
+        background-color: #f1f5f9;
+        color: #059669 !important;
+    }
+    .dropdown-menu-modern {
+        border: 1px solid #e2e8f0;
+        border-radius: 0.85rem;
+        box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.12);
+        padding: 0.5rem;
+        min-width: 220px;
+    }
+    .dropdown-menu-modern .dropdown-item {
+        border-radius: 0.55rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+        color: #334155;
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+    }
+    .dropdown-menu-modern .dropdown-item:hover {
+        background-color: #ecfdf5;
+        color: #047857;
+    }
+    .btn-emerald-nav {
+        background-color: #059669;
+        border-color: #059669;
+        color: #ffffff;
+        font-weight: 600;
+        border-radius: 0.6rem;
+    }
+    .btn-emerald-nav:hover {
+        background-color: #047857;
+        border-color: #047857;
+        color: #ffffff;
+    }
+  </style>
+
+  <div class="container">
+    <!-- Marca / Logo -->
+    <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-dark"
+       th:href="${isAdotante} ? @{/adocao} : @{/}">
+            <span class="navbar-brand-badge">
+                <i class="bi bi-heart-pulse-fill"></i>
+            </span>
+      <span>ONG <span class="text-success">Adocão</span></span>
+    </a>
+
+    <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Alternar navegação">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarMain">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1 ms-lg-3">
+        <!-- Oculto para Adotante -->
+        <li class="nav-item" th:if="${!isAdotante}">
+          <a class="nav-link nav-link-modern" th:href="@{/}">
+            <i class="bi bi-grid-1x2 me-1"></i> Painel
+          </a>
+        </li>
+
+        <!-- Visível para todos -->
+        <li class="nav-item">
+          <a class="nav-link nav-link-modern" th:href="@{/adocao}">
+            <i class="bi bi-search-heart me-1"></i> Quero Adotar
+          </a>
+        </li>
+
+        <!-- Visível apenas para Adotante -->
+        <li class="nav-item" th:if="${isAdotante}">
+          <a class="nav-link nav-link-modern" th:href="@{/adocao/minhas-solicitacoes}">
+            <i class="bi bi-clipboard-heart me-1"></i> Minhas Solicitações
+          </a>
+        </li>
+
+        <!-- Dropdown Animais & Saúde (Oculto para Adotante) -->
+        <li class="nav-item dropdown" th:if="${!isAdotante}">
+          <a class="nav-link nav-link-modern dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-heart me-1"></i> Animais
+          </a>
+          <ul class="dropdown-menu dropdown-menu-modern">
+            <li>
+              <a class="dropdown-item" th:href="@{/animal/listaAnimal}">
+                <i class="bi bi-list-ul text-success"></i> Listar Animais
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" th:href="@{/animal/cadastroAnimal}">
+                <i class="bi bi-plus-circle text-success"></i> Cadastrar Animal
+              </a>
+            </li>
+            <li><hr class="dropdown-divider my-1"></li>
+            <li>
+              <a class="dropdown-item" th:href="@{/prontuario/cadastroProntuario}">
+                <i class="bi bi-file-earmark-medical text-info"></i> Novo Prontuário
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" th:href="@{/vacina/cadastroVacina}">
+                <i class="bi bi-eyedropper text-primary"></i> Cadastrar Vacina
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" th:href="@{/doenca/cadastroDoenca}">
+                <i class="bi bi-bandaid text-warning"></i> Cadastrar Doença
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Dropdown Adoções & Campanhas (Oculto para Adotante) -->
+        <li class="nav-item dropdown" th:if="${!isAdotante}">
+          <a class="nav-link nav-link-modern dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-house-heart me-1"></i> Gestão
+          </a>
+          <ul class="dropdown-menu dropdown-menu-modern">
+            <li>
+              <a class="dropdown-item" th:href="@{/adocao/listar}">
+                <i class="bi bi-clipboard-check text-success"></i> Solicitações de Adoção
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" th:href="@{/adocao/cadastrar}">
+                <i class="bi bi-file-earmark-plus text-success"></i> Nova Solicitação
+              </a>
+            </li>
+            <li><hr class="dropdown-divider my-1"></li>
+            <li>
+              <a class="dropdown-item" th:href="@{/campanha/listaCampanha}">
+                <i class="bi bi-megaphone text-warning"></i> Listar Campanhas
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" th:href="@{/campanha/cadastroCampanha}">
+                <i class="bi bi-calendar-plus text-warning"></i> Criar Campanha
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Dropdown Usuários (Oculto para Adotante) -->
+        <li class="nav-item dropdown" th:if="${!isAdotante}">
+          <a class="nav-link nav-link-modern dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-people me-1"></i> Usuários
+          </a>
+          <ul class="dropdown-menu dropdown-menu-modern">
+            <li>
+              <a class="dropdown-item" th:href="@{/usuario/listaUsuario}">
+                <i class="bi bi-person-lines-fill text-primary"></i> Listar Usuários
+              </a>
+            </li>
+            <li th:if="${isAdmin}">
+              <a class="dropdown-item" th:href="@{/usuario/cadastroUsuario}">
+                <i class="bi bi-person-plus text-primary"></i> Cadastrar Usuário
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+
+      <!-- Área direita: Usuário logado / Login -->
+      <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0">
+        <div th:if="${usuarioLogado != null}" class="d-flex align-items-center gap-2">
+          <div class="d-flex align-items-center gap-2 bg-light border rounded-pill px-3 py-1">
+            <i class="bi bi-person-circle text-success"></i>
+            <span class="small fw-semibold text-dark" th:text="${usuarioLogado}">usuario</span>
+            <span th:if="${perfilUsuario != null}"
+                  class="badge rounded-pill"
+                  th:classappend="${isAdmin} ? 'bg-success text-white' : (${isAdotante} ? 'bg-info-subtle text-info-emphasis' : 'bg-primary-subtle text-primary')"
+                  th:text="${perfilUsuario}">
+                            Perfil
+                        </span>
+          </div>
+
+          <form th:action="@{/logout}" method="post" class="d-inline m-0">
+            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3" title="Encerrar sessão">
+              <i class="bi bi-box-arrow-right me-1"></i> Sair
+            </button>
+          </form>
+        </div>
+
+        <a th:if="${usuarioLogado == null}" th:href="@{/login}" class="btn btn-emerald-nav btn-sm px-3 py-2">
+          <i class="bi bi-box-arrow-in-right me-1"></i> Entrar
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head-default}"></head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Solicitações | ONG Adoção</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/padrao.css}">
+    <style>
+        body { background-color: #f1f5f9; color: #1e293b; }
+        .list-card { border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06); }
+        .icon-badge { width: 48px; height: 48px; border-radius: 0.75rem; background: #ecfdf5; color: #059669; display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+        .pet-thumb { width: 46px; height: 46px; border-radius: 0.65rem; object-fit: cover; border: 1px solid #e2e8f0; }
+        .table thead th { background-color: #f8fafc; color: #475569; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; border-bottom: 1px solid #e2e8f0; padding: 0.9rem 1rem; }
+        .table tbody td { padding: 0.95rem 1rem; border-bottom-color: #f1f5f9; }
+        .btn-emerald { background-color: #059669; border-color: #059669; color: #fff; font-weight: 600; border-radius: 0.6rem; }
+        .btn-emerald:hover { background-color: #047857; border-color: #047857; color: #fff; }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container my-5 flex-grow-1">
+    <div class="card list-card bg-white">
+        <div class="card-body p-4 p-md-5">
+
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 pb-4 mb-4 border-bottom">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="icon-badge"><i class="bi bi-clipboard-heart-fill"></i></div>
+                    <div>
+                        <h4 class="mb-0 fw-bold text-dark">Minhas Solicitações de Adoção</h4>
+                        <p class="text-muted small mb-0">Acompanhe o andamento dos seus pedidos de adoção</p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <a th:href="@{/adocao}" class="btn btn-outline-success btn-sm rounded-3 px-3 py-2">
+                        <i class="bi bi-search-heart me-1"></i> Ver Animais
+                    </a>
+                    <a th:href="@{/adocao/cadastrar}" class="btn btn-emerald btn-sm px-3 py-2">
+                        <i class="bi bi-plus-lg me-1"></i> Nova Solicitação
+                    </a>
+                </div>
+            </div>
+
+            <div th:if="${sucesso}" class="alert alert-success d-flex align-items-center gap-2 rounded-3" role="alert">
+                <i class="bi bi-check-circle-fill"></i>
+                <span th:text="${sucesso}"></span>
+            </div>
+            <div th:if="${erro}" class="alert alert-danger d-flex align-items-center gap-2 rounded-3" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span th:text="${erro}"></span>
+            </div>
+
+            <div class="table-responsive rounded-3 border">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                    <tr>
+                        <th>Animal</th>
+                        <th>Data da Solicitação</th>
+                        <th>Situação</th>
+                        <th>Observações / Retorno da ONG</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="adocao : ${minhasAdocoes}">
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <img th:src="${adocao.animal != null and adocao.animal.foto != null and !adocao.animal.foto.isEmpty() ? adocao.animal.foto : '/Icones/cachorro.png'}"
+                                     alt="Foto do pet" class="pet-thumb">
+                                <div>
+                                    <div class="fw-semibold text-dark" th:text="${adocao.animal != null ? adocao.animal.nome : 'Animal'}">Rex</div>
+                                    <div class="text-muted small" th:if="${adocao.animal != null}"
+                                         th:text="${adocao.animal.tipo != null ? adocao.animal.tipo.displayName : ''} + (${adocao.animal.raca != null} ? ' • ' + ${adocao.animal.raca} : '')">
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="text-muted small" th:text="${#temporals.format(adocao.dataAdocao, 'dd/MM/yyyy HH:mm')}"></td>
+
+                        <td>
+                            <span class="badge rounded-pill px-3 py-1"
+                                  th:classappend="${adocao.situacao.name() == 'APROVADA' ? 'bg-success-subtle text-success border border-success-subtle' : (adocao.situacao.name() == 'REPROVADA' ? 'bg-danger-subtle text-danger border border-danger-subtle' : 'bg-warning-subtle text-warning-emphasis border border-warning-subtle')}">
+                                <i class="bi me-1"
+                                   th:classappend="${adocao.situacao.name() == 'APROVADA' ? 'bi-check-circle-fill' : (adocao.situacao.name() == 'REPROVADA' ? 'bi-x-circle-fill' : 'bi-hourglass-split')}"></i>
+                                <span th:text="${adocao.situacao.displayName}">Em Análise</span>
+                            </span>
+                        </td>
+
+                        <td>
+                            <div th:if="${adocao.observacoes != null and !adocao.observacoes.isEmpty()}" class="small text-secondary mb-1">
+                                <strong>Sua observação:</strong> <span th:text="${adocao.observacoes}"></span>
+                            </div>
+
+                            <div th:if="${adocao.situacao.name() == 'APROVADA'}" class="small text-success fw-medium">
+                                <i class="bi bi-stars me-1"></i> Parabéns! Sua adoção foi aprovada pela equipe da ONG.
+                            </div>
+
+                            <div th:if="${adocao.situacao.name() == 'REPROVADA'}" class="small text-danger">
+                                <strong>Motivo da recusa:</strong>
+                                <span th:text="${adocao.motivoReprovacao != null and !adocao.motivoReprovacao.isEmpty() ? adocao.motivoReprovacao : 'Não informado.'}"></span>
+                            </div>
+
+                            <span th:if="${(adocao.observacoes == null or adocao.observacoes.isEmpty()) and adocao.situacao.name() == 'EM_ANALISE'}"
+                                  class="text-muted small">Aguardando avaliação da equipe.</span>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(minhasAdocoes)}">
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                            <p class="mb-3">Você ainda não possui nenhuma solicitação de adoção registrada.</p>
+                            <a th:href="@{/adocao}" class="btn btn-emerald btn-sm px-4 py-2">
+                                <i class="bi bi-search-heart me-1"></i> Conhecer animais disponíveis
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    setTimeout(() => document.querySelectorAll('.alert').forEach(alert => alert.remove()), 4000);
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

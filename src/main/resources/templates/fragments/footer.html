@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<footer class="mt-auto py-4 border-top" style="background-color: #0f172a; color: #cbd5e1;" th:fragment="footer">
+  <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <span class="fw-semibold text-white">ONG Adoção</span>
+      <span class="text-secondary">&bull;</span>
+      <span class="small">&copy; <span id="current-year"></span> Todos os direitos reservados.</span>
+    </div>
+
+    <div class="d-flex align-items-center gap-3 small" th:if="${usuarioLogado != null}">
+            <span>
+                Sessão: <strong class="text-white" th:text="${usuarioLogado}">usuario</strong>
+                (<span th:text="${perfilUsuario}">Perfil</span>)
+            </span>
+      <a th:href="@{/logout}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+        Sair
+      </a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("current-year").textContent = new Date().getFullYear();
+  </script>
+</footer>
+
+</body>
+</html>

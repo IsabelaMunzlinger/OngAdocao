@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head-default}"></head>
+<body>
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container mt-5">
+    <div class="alert alert-success">
+        <strong>Área Restrita (role = admin):</strong> Acesso liberado somente após validação criptográfica RS256 do ID Token.
+    </div>
+
+    <h4 class="mb-3">Usuários OIDC Vinculados no MySQL</h4>
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+        <tr>
+            <th>ID Interno</th>
+            <th>User Name</th>
+            <th>Nome Completo</th>
+            <th>OIDC Sub</th>
+            <th>Role</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="u : ${usuarios}">
+            <td th:text="${u.id}"></td>
+            <td th:text="${u.userName}"></td>
+            <td th:text="${u.fullName}"></td>
+            <td th:text="${u.oidcSub}"></td>
+            <td><span class="badge bg-primary" th:text="${u.role}"></span></td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

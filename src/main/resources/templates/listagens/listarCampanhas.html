@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head-default}"></head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listagem de Campanhas | ONG Adoção</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/padrao.css}">
+    <style>
+        body { background-color: #f1f5f9; color: #1e293b; }
+        .list-card { border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06); }
+        .icon-badge { width: 48px; height: 48px; border-radius: 0.75rem; background: #fef3c7; color: #d97706; display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+        .table thead th { background-color: #f8fafc; color: #475569; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; border-bottom: 1px solid #e2e8f0; padding: 0.9rem 1rem; }
+        .table tbody td { padding: 0.95rem 1rem; border-bottom-color: #f1f5f9; }
+        .btn-emerald { background-color: #059669; border-color: #059669; color: #fff; font-weight: 600; border-radius: 0.6rem; }
+        .btn-emerald:hover { background-color: #047857; border-color: #047857; color: #fff; }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container my-5 flex-grow-1">
+    <div class="card list-card bg-white">
+        <div class="card-body p-4 p-md-5">
+
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 pb-4 mb-4 border-bottom">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="icon-badge"><i class="bi bi-megaphone-fill"></i></div>
+                    <div>
+                        <h4 class="mb-0 fw-bold text-dark">Campanhas e Eventos</h4>
+                        <p class="text-muted small mb-0">Acompanhe feiras de adoção, custos e arrecadações</p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span th:if="${usuarioLogado != null}"
+                          class="badge rounded-pill px-3 py-2"
+                          th:classappend="${isAdmin} ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-primary-subtle text-primary border border-primary-subtle'">
+                        <i class="bi" th:classappend="${isAdmin} ? 'bi-shield-check me-1' : 'bi-person-badge me-1'"></i>
+                        <span th:text="${perfilUsuario}">Operador</span>
+                    </span>
+                    <a th:href="@{/campanha/cadastroCampanha}" class="btn btn-emerald btn-sm px-3 py-2">
+                        <i class="bi bi-plus-lg me-1"></i> Criar Nova Campanha
+                    </a>
+                </div>
+            </div>
+
+            <div th:if="${Sucesso}" class="alert alert-success d-flex align-items-center gap-2 rounded-3" role="alert">
+                <i class="bi bi-check-circle-fill"></i>
+                <span th:text="${Sucesso}"></span>
+            </div>
+            <div th:if="${Erro}" class="alert alert-danger d-flex align-items-center gap-2 rounded-3" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span th:text="${Erro}"></span>
+            </div>
+
+            <div class="table-responsive rounded-3 border">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                    <tr>
+                        <th scope="col">Nome da Campanha</th>
+                        <th scope="col">Situação</th>
+                        <th scope="col">Início</th>
+                        <th scope="col">Término</th>
+                        <th scope="col" class="text-end">Custo Previsto</th>
+                        <th scope="col" class="text-end">Arrecadado</th>
+                        <th scope="col" class="text-end">Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="campanha : ${listaCampanhas}">
+                        <td class="fw-semibold text-dark" th:text="${campanha.nome}"></td>
+                        <td>
+                            <span th:switch="${campanha.situacao.name()}">
+                                <span th:case="'PLANEJADA'" class="badge rounded-pill px-3 py-1 bg-info-subtle text-info-emphasis border border-info-subtle">Planejada</span>
+                                <span th:case="'EM_ANDAMENTO'" class="badge rounded-pill px-3 py-1 bg-primary-subtle text-primary border border-primary-subtle">Em Andamento</span>
+                                <span th:case="'CONCLUIDA'" class="badge rounded-pill px-3 py-1 bg-success-subtle text-success border border-success-subtle">Concluída</span>
+                                <span th:case="'CANCELADA'" class="badge rounded-pill px-3 py-1 bg-danger-subtle text-danger border border-danger-subtle">Cancelada</span>
+                                <span th:case="*" class="badge rounded-pill px-3 py-1 bg-secondary-subtle text-secondary" th:text="${campanha.situacao.displayName}"></span>
+                            </span>
+                        </td>
+                        <td class="text-muted small" th:text="${#temporals.format(campanha.dataInicio, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td class="text-muted small" th:text="${#temporals.format(campanha.dataTermino, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td class="text-end text-muted" th:text="${#numbers.formatCurrency(campanha.custo)}"></td>
+                        <td class="text-end fw-semibold text-success" th:text="${#numbers.formatCurrency(campanha.lucro)}"></td>
+                        <td class="text-end">
+                            <div class="d-inline-flex gap-1">
+                                <a th:href="@{/campanha/editarCampanha(id=${campanha.id})}"
+                                   class="btn btn-outline-warning btn-sm rounded-3" title="Editar Campanha">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+                                <!-- Excluir visível APENAS para ADMIN -->
+                                <a th:if="${isAdmin}"
+                                   th:href="@{/campanha/excluir(id=${campanha.id})}"
+                                   class="btn btn-outline-danger btn-sm rounded-3" title="Excluir Campanha"
+                                   onclick="return confirm('Tem certeza que deseja excluir esta campanha?');">
+                                    <i class="bi bi-trash-fill"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(listaCampanhas)}">
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                            Nenhuma campanha cadastrada no momento.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+    setTimeout(() => document.querySelectorAll('.alert').forEach(alert => alert.remove()), 3500);
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

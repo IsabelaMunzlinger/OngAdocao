@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head-default}"></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerenciar Adoções | ONG Adoção</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/padrao.css}">
+  <style>
+    body { background-color: #f1f5f9; color: #1e293b; }
+    .list-card { border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06); }
+    .icon-badge { width: 48px; height: 48px; border-radius: 0.75rem; background: #ecfdf5; color: #059669; display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+    .table thead th { background-color: #f8fafc; color: #475569; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; border-bottom: 1px solid #e2e8f0; padding: 0.9rem 1rem; }
+    .table tbody td { padding: 0.95rem 1rem; border-bottom-color: #f1f5f9; }
+    .btn-emerald { background-color: #059669; border-color: #059669; color: #fff; font-weight: 600; border-radius: 0.6rem; }
+    .btn-emerald:hover { background-color: #047857; border-color: #047857; color: #fff; }
+  </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<main class="container my-5 flex-grow-1">
+  <div class="card list-card bg-white">
+    <div class="card-body p-4 p-md-5">
+
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 pb-4 mb-4 border-bottom">
+        <div class="d-flex align-items-center gap-3">
+          <div class="icon-badge"><i class="bi bi-house-heart-fill"></i></div>
+          <div>
+            <h4 class="mb-0 fw-bold text-dark">Solicitações de Adoção</h4>
+            <p class="text-muted small mb-0">Acompanhe, aprove ou reprove pedidos de adoção registrados</p>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+                    <span th:if="${usuarioLogado != null}"
+                          class="badge rounded-pill px-3 py-2"
+                          th:classappend="${isAdmin} ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-primary-subtle text-primary border border-primary-subtle'">
+                        <i class="bi" th:classappend="${isAdmin} ? 'bi-shield-check me-1' : 'bi-person-badge me-1'"></i>
+                        <span th:text="${perfilUsuario}">Operador</span>
+                    </span>
+          <a th:href="@{/adocao/cadastroAdocao}" class="btn btn-emerald btn-sm px-3 py-2">
+            <i class="bi bi-plus-lg me-1"></i> Nova Solicitação
+          </a>
+        </div>
+      </div>
+
+      <div th:if="${sucesso}" class="alert alert-success d-flex align-items-center gap-2 rounded-3" role="alert">
+        <i class="bi bi-check-circle-fill"></i>
+        <span th:text="${sucesso}"></span>
+      </div>
+      <div th:if="${erro}" class="alert alert-danger d-flex align-items-center gap-2 rounded-3" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span th:text="${erro}"></span>
+      </div>
+
+      <div class="table-responsive rounded-3 border">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+          <tr>
+            <th>Animal</th>
+            <th>Adotante</th>
+            <th>Data da Solicitação</th>
+            <th>Status</th>
+            <th class="text-center">Observações</th>
+            <th class="text-center">Ações</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="adocao : ${listaAdocoes}">
+            <td class="fw-semibold text-dark" th:text="${adocao.animal.nome}">Rex</td>
+            <td th:text="${adocao.usuario.nome}">João da Silva</td>
+            <td class="text-muted small" th:text="${#temporals.format(adocao.dataAdocao, 'dd/MM/yyyy HH:mm')}"></td>
+            <td>
+                            <span class="badge rounded-pill px-3 py-1"
+                                  th:classappend="${adocao.situacao.name() == 'APROVADA' ? 'bg-success-subtle text-success border border-success-subtle' : (adocao.situacao.name() == 'REPROVADA' ? 'bg-danger-subtle text-danger border border-danger-subtle' : 'bg-warning-subtle text-warning-emphasis border border-warning-subtle')}"
+                                  th:text="${adocao.situacao.displayName}">
+                            </span>
+            </td>
+            <td class="text-center">
+                            <span th:if="${adocao.observacoes != null and !adocao.observacoes.isEmpty()}"
+                                  class="btn btn-light btn-sm border rounded-circle" tabindex="0"
+                                  data-bs-toggle="popover" data-bs-trigger="hover focus"
+                                  title="Observação do Adotante" th:data-bs-content="${adocao.observacoes}">
+                                <i class="bi bi-chat-left-text-fill text-primary"></i>
+                            </span>
+              <span th:if="${adocao.situacao.name() == 'REPROVADA' and adocao.motivoReprovacao != null and !adocao.motivoReprovacao.isEmpty()}"
+                    class="btn btn-light btn-sm border rounded-circle ms-1" tabindex="0"
+                    data-bs-toggle="popover" data-bs-trigger="hover focus"
+                    title="Motivo da Reprovação" th:data-bs-content="${adocao.motivoReprovacao}">
+                                <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                            </span>
+              <span th:if="${(adocao.observacoes == null or adocao.observacoes.isEmpty()) and !(adocao.situacao.name() == 'REPROVADA' and adocao.motivoReprovacao != null and !adocao.motivoReprovacao.isEmpty())}"
+                    class="text-muted small">—</span>
+            </td>
+            <td class="text-center">
+              <div th:if="${adocao.situacao.name() == 'EM_ANALISE'}" class="d-inline-flex gap-1">
+                <form th:action="@{/adocao/aprovar}" method="post" class="d-inline">
+                  <input type="hidden" name="adocaoId" th:value="${adocao.id}">
+                  <button type="submit" class="btn btn-outline-success btn-sm rounded-3" title="Aprovar Adoção">
+                    <i class="bi bi-check-lg me-1"></i> Aprovar
+                  </button>
+                </form>
+                <button type="button" class="btn btn-outline-danger btn-sm rounded-3" title="Reprovar Adoção"
+                        data-bs-toggle="modal" data-bs-target="#modalReprovar"
+                        th:data-adocao-id="${adocao.id}">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+              <span th:unless="${adocao.situacao.name() == 'EM_ANALISE'}" class="text-muted small">Concluída</span>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(listaAdocoes)}">
+            <td colspan="6" class="text-center py-5 text-muted">
+              <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+              Nenhuma solicitação de adoção encontrada.
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- Modal Reprovar -->
+<div class="modal fade" id="modalReprovar" tabindex="-1" aria-labelledby="modalReprovarLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow rounded-4">
+      <form th:action="@{/adocao/reprovar}" method="post">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title fw-bold text-danger" id="modalReprovarLabel">
+            <i class="bi bi-x-octagon-fill me-2"></i>Reprovar Adoção
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <p class="text-muted small mb-3">Informe o motivo da reprovação. Esta justificativa ficará registrada no histórico da solicitação.</p>
+          <input type="hidden" name="adocaoId" id="adocaoIdReprovar">
+          <textarea name="motivo" class="form-control rounded-3" rows="3" required placeholder="Ex: Adotante não cumpriu os pré-requisitos de espaço..."></textarea>
+        </div>
+        <div class="modal-footer border-top">
+          <button type="button" class="btn btn-light border rounded-3" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger rounded-3">Confirmar Reprovação</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script>
+  setTimeout(() => document.querySelectorAll('.alert').forEach(alert => alert.remove()), 3500);
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+      const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+      [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl));
+
+      const modalReprovar = document.getElementById('modalReprovar');
+      if (modalReprovar) {
+          modalReprovar.addEventListener('show.bs.modal', function (event) {
+              const button = event.relatedTarget;
+              const adocaoId = button.getAttribute('data-adocao-id');
+              modalReprovar.querySelector('#adocaoIdReprovar').value = adocaoId;
+          });
+      }
+  });
+</script>
+</body>
+</html>
